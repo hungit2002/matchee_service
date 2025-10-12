@@ -12,3 +12,9 @@ type Role struct {
 	// Relationships
 	UserRoles []UserRole `gorm:"foreignKey:RoleID" json:"userRoles,omitempty"`
 }
+
+const (
+	RolePlayer     = "player"
+	RoleAdmin      = "admin"
+	RoleVenueOwner = "venue_owner"
+)

@@ -1,9 +1,12 @@
 APP_NAME=matchee-services
 HTTP_HOST=0.0.0.0
 HTTP_PORT=8080
-MYSQL_DSN=root:Tranduyhung11@tcp(host.docker.internal:3306)/matchee?charset=utf8mb4&parseTime=True&loc=Local
+MYSQL_DSN=
 REDIS_ADDR=127.0.0.1:6379
 REDIS_DB=0
 REDIS_PASSWORD=
 RABBITMQ_URL=amqp://guest:guest@127.0.0.1:5672/
+JWT_SECRET=your-secret-key-change-in-production
+JWT_EXPIRY=15m
+REFRESH_EXPIRY=168h
 SHUTDOWN_TIMEOUT=10s

@@ -1,1 +1,1 @@
-DROP TABLE IF EXISTS users_role;
+DROP TABLE IF EXISTS user_roles;
