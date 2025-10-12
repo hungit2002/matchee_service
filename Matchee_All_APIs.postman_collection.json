@@ -1035,6 +1035,227 @@
 			"description": "Availability slot management endpoints with new response format"
 		},
 		{
+			"name": "Match Post Management",
+			"item": [
+				{
+					"name": "Create Match Post",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"desiredLevel\": \"intermediate\",\n  \"location\": \"Ho Chi Minh City\",\n  \"latitude\": 10.8231,\n  \"longitude\": 106.6297,\n  \"venueId\": {{venue_id}},\n  \"desiredTime\": \"2024-01-20T18:00:00Z\",\n  \"pricePerPerson\": 100000,\n  \"maxPlayers\": 4,\n  \"note\": \"Looking for intermediate level players for evening match\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/match-posts",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"match-posts"
+							]
+						},
+						"description": "Create a new match post for finding opponents"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Match Posts",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/match-posts?desiredLevel=intermediate&location=Ho Chi Minh City&latitude=10.8231&longitude=106.6297&radius=10&status=open&page=1&limit=20",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"match-posts"
+							],
+							"query": [
+								{
+									"key": "desiredLevel",
+									"value": "intermediate"
+								},
+								{
+									"key": "location",
+									"value": "Ho Chi Minh City"
+								},
+								{
+									"key": "latitude",
+									"value": "10.8231"
+								},
+								{
+									"key": "longitude",
+									"value": "106.6297"
+								},
+								{
+									"key": "radius",
+									"value": "10"
+								},
+								{
+									"key": "status",
+									"value": "open"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "20"
+								}
+							]
+						},
+						"description": "Get list of match posts with optional filters"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Match Post by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/match-posts/{{match_post_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"match-posts",
+								"{{match_post_id}}"
+							]
+						},
+						"description": "Get detailed match post information by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Match Post",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"desiredLevel\": \"advanced\",\n  \"maxPlayers\": 6,\n  \"note\": \"Updated: Looking for advanced level players\",\n  \"status\": \"open\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/match-posts/{{match_post_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"match-posts",
+								"{{match_post_id}}"
+							]
+						},
+						"description": "Update match post information"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Match Post",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/match-posts/{{match_post_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"match-posts",
+								"{{match_post_id}}"
+							]
+						},
+						"description": "Delete a match post (set status to cancelled)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Suggested Match Posts",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/match-posts/suggest?userId={{user_id}}&desiredLevel=intermediate&latitude=10.8231&longitude=106.6297&radius=5&limit=10",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"match-posts",
+								"suggest"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "{{user_id}}"
+								},
+								{
+									"key": "desiredLevel",
+									"value": "intermediate"
+								},
+								{
+									"key": "latitude",
+									"value": "10.8231"
+								},
+								{
+									"key": "longitude",
+									"value": "106.6297"
+								},
+								{
+									"key": "radius",
+									"value": "5"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Get match post suggestions for a user based on their preferences"
+					},
+					"response": []
+				}
+			],
+			"description": "Match post management endpoints for finding opponents and creating match groups"
+		},
+		{
 			"name": "Complete Test Flows",
 			"item": [
 				{
@@ -1793,6 +2014,51 @@
 		{
 			"key": "updated_slot_price",
 			"value": "250000",
+			"type": "string"
+		},
+		{
+			"key": "match_post_id",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "desired_level",
+			"value": "intermediate",
+			"type": "string"
+		},
+		{
+			"key": "match_location",
+			"value": "Ho Chi Minh City",
+			"type": "string"
+		},
+		{
+			"key": "match_latitude",
+			"value": "10.8231",
+			"type": "string"
+		},
+		{
+			"key": "match_longitude",
+			"value": "106.6297",
+			"type": "string"
+		},
+		{
+			"key": "desired_time",
+			"value": "2024-01-20T18:00:00Z",
+			"type": "string"
+		},
+		{
+			"key": "price_per_person",
+			"value": "100000",
+			"type": "string"
+		},
+		{
+			"key": "max_players",
+			"value": "4",
+			"type": "string"
+		},
+		{
+			"key": "match_note",
+			"value": "Looking for intermediate level players for evening match",
 			"type": "string"
 		}
 	]
