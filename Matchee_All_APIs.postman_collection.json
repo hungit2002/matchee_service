@@ -1,0 +1,1094 @@
+{
+	"info": {
+		"_postman_id": "matchee-all-apis",
+		"name": "Matchee All APIs",
+		"description": "Complete collection for all Matchee APIs - Auth, User Management, Player Profile, and Environments",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Health Check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/health",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"health"
+					]
+				},
+				"description": "Check server health status with new response format"
+			},
+			"response": []
+		},
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Register User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"fullName\": \"{{user_full_name}}\",\n  \"phone\": \"{{user_phone}}\",\n  \"email\": \"{{user_email}}\",\n  \"password\": \"{{user_password}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"register"
+							]
+						},
+						"description": "Register a new user with default player role. Response includes new format with status, code, message, and data fields."
+					},
+					"response": []
+				},
+				{
+					"name": "Login User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"phone\": \"{{user_phone}}\",\n  \"password\": \"{{user_password}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Login user and get JWT tokens. Response includes new format with status, code, message, and data fields."
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh Token",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"refreshToken\": \"{{refresh_token}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/refresh",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"refresh"
+							]
+						},
+						"description": "Refresh access token using refresh token. Response includes new format with status, code, message, and data fields."
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"refreshToken\": \"{{refresh_token}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/logout",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"logout"
+							]
+						},
+						"description": "Logout and revoke refresh token. Response includes new format with status, code, message, and data fields."
+					},
+					"response": []
+				}
+			],
+			"description": "Authentication endpoints with new response format"
+		},
+		{
+			"name": "User Management",
+			"item": [
+				{
+					"name": "Get Current User",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/users/me",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"me"
+							]
+						},
+						"description": "Get current user information. Response includes new format with status, code, message, and data fields."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Profile",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"fullName\": \"{{updated_full_name}}\",\n  \"email\": \"{{updated_email}}\",\n  \"phone\": \"{{updated_phone}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/users/me",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"me"
+							]
+						},
+						"description": "Update current user profile. Response includes new format with status, code, message, and data fields."
+					},
+					"response": []
+				},
+				{
+					"name": "Change Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"currentPassword\": \"{{user_password}}\",\n  \"newPassword\": \"{{new_password}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/users/change-password",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"change-password"
+							]
+						},
+						"description": "Change current user password. Response includes new format with status, code, message, and data fields."
+					},
+					"response": []
+				}
+			],
+			"description": "User management endpoints (require authentication) with new response format"
+		},
+		{
+			"name": "Player Profile Management",
+			"item": [
+				{
+					"name": "Create/Update Player Profile",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"level\": \"{{player_level}}\",\n  \"gender\": \"{{player_gender}}\",\n  \"preferredLocation\": \"{{player_location}}\",\n  \"latitude\": {{player_latitude}},\n  \"longitude\": {{player_longitude}},\n  \"bio\": \"{{player_bio}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/player/profile",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"player",
+								"profile"
+							]
+						},
+						"description": "Create or update player profile. Response includes new format with status, code, message, and data fields."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Current Player Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/player/profile",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"player",
+								"profile"
+							]
+						},
+						"description": "Get current user's player profile. Response includes new format with status, code, message, and data fields."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Player Profile by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/player/profile/{{player_profile_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"player",
+								"profile",
+								"{{player_profile_id}}"
+							]
+						},
+						"description": "Get player profile by ID. Response includes new format with status, code, message, and data fields."
+					},
+					"response": []
+				}
+			],
+			"description": "Player profile management endpoints with new response format"
+		},
+		{
+			"name": "Player Suggestions",
+			"item": [
+				{
+					"name": "Get Suggestions by Level",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/player/suggestions?level={{suggestion_level}}&limit={{suggestion_limit}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"player",
+								"suggestions"
+							],
+							"query": [
+								{
+									"key": "level",
+									"value": "{{suggestion_level}}"
+								},
+								{
+									"key": "limit",
+									"value": "{{suggestion_limit}}"
+								}
+							]
+						},
+						"description": "Get player suggestions by level. Response includes new format with status, code, message, and data fields."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Suggestions by Location",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/player/suggestions?latitude={{suggestion_latitude}}&longitude={{suggestion_longitude}}&radius={{suggestion_radius}}&limit={{suggestion_limit}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"player",
+								"suggestions"
+							],
+							"query": [
+								{
+									"key": "latitude",
+									"value": "{{suggestion_latitude}}"
+								},
+								{
+									"key": "longitude",
+									"value": "{{suggestion_longitude}}"
+								},
+								{
+									"key": "radius",
+									"value": "{{suggestion_radius}}"
+								},
+								{
+									"key": "limit",
+									"value": "{{suggestion_limit}}"
+								}
+							]
+						},
+						"description": "Get player suggestions by location. Response includes new format with status, code, message, and data fields."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Combined Suggestions",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/player/suggestions?level={{suggestion_level}}&latitude={{suggestion_latitude}}&longitude={{suggestion_longitude}}&radius={{suggestion_radius}}&limit={{suggestion_limit}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"player",
+								"suggestions"
+							],
+							"query": [
+								{
+									"key": "level",
+									"value": "{{suggestion_level}}"
+								},
+								{
+									"key": "latitude",
+									"value": "{{suggestion_latitude}}"
+								},
+								{
+									"key": "longitude",
+									"value": "{{suggestion_longitude}}"
+								},
+								{
+									"key": "radius",
+									"value": "{{suggestion_radius}}"
+								},
+								{
+									"key": "limit",
+									"value": "{{suggestion_limit}}"
+								}
+							]
+						},
+						"description": "Get player suggestions with combined criteria (level + location). Response includes new format with status, code, message, and data fields."
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Suggestions",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/player/suggestions?limit={{suggestion_limit}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"player",
+								"suggestions"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "{{suggestion_limit}}"
+								}
+							]
+						},
+						"description": "Get all player suggestions. Response includes new format with status, code, message, and data fields."
+					},
+					"response": []
+				}
+			],
+			"description": "Player suggestion endpoints with new response format"
+		},
+		{
+			"name": "Complete Test Flows",
+			"item": [
+				{
+					"name": "Authentication Flow",
+					"item": [
+						{
+							"name": "1. Health Check",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/health",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"health"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "2. Register User",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"fullName\": \"Test User\",\n  \"phone\": \"{{user_phone}}\",\n  \"email\": \"{{user_email}}\",\n  \"password\": \"{{user_password}}\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/v1/auth/register",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"auth",
+										"register"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "3. Login User",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"phone\": \"{{user_phone}}\",\n  \"password\": \"{{user_password}}\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/v1/auth/login",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"auth",
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "4. Get Current User",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/v1/users/me",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"users",
+										"me"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "5. Update Profile",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"fullName\": \"Updated Test User\",\n  \"email\": \"updated@example.com\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/v1/users/me",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"users",
+										"me"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "6. Change Password",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"currentPassword\": \"{{user_password}}\",\n  \"newPassword\": \"{{new_password}}\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/v1/users/change-password",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"users",
+										"change-password"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "7. Logout",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"refreshToken\": \"{{refresh_token}}\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/v1/auth/logout",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"auth",
+										"logout"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"description": "Complete authentication flow: Health → Register → Login → Get User → Update → Change Password → Logout"
+				},
+				{
+					"name": "Player Profile Flow",
+					"item": [
+						{
+							"name": "1. Health Check",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/health",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"health"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "2. Login User",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"phone\": \"{{user_phone}}\",\n  \"password\": \"{{user_password}}\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/v1/auth/login",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"auth",
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "3. Create Player Profile",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"level\": \"good\",\n  \"gender\": \"male\",\n  \"preferredLocation\": \"Ho Chi Minh City\",\n  \"latitude\": 10.8231,\n  \"longitude\": 106.6297,\n  \"bio\": \"Passionate tennis player\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/v1/player/profile",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"player",
+										"profile"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "4. Get Player Profile",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/v1/player/profile",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"player",
+										"profile"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "5. Get Player Suggestions",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/v1/player/suggestions?level=good&latitude=10.8231&longitude=106.6297&radius=10&limit=5",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"player",
+										"suggestions"
+									],
+									"query": [
+										{
+											"key": "level",
+											"value": "good"
+										},
+										{
+											"key": "latitude",
+											"value": "10.8231"
+										},
+										{
+											"key": "longitude",
+											"value": "106.6297"
+										},
+										{
+											"key": "radius",
+											"value": "10"
+										},
+										{
+											"key": "limit",
+											"value": "5"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"description": "Complete player profile flow: Health → Login → Create Profile → Get Profile → Get Suggestions"
+				}
+			],
+			"description": "Complete test flows for all APIs"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Auto-save tokens and IDs from responses with new format",
+					"if (pm.response.code === 200 || pm.response.code === 201) {",
+					"    const responseJson = pm.response.json();",
+					"    ",
+					"    // Check if response has new format",
+					"    if (responseJson.status === 'success' && responseJson.data) {",
+					"        const data = responseJson.data;",
+					"        ",
+					"        // Save authentication tokens",
+					"        if (data.accessToken) {",
+					"            pm.environment.set('access_token', data.accessToken);",
+					"        }",
+					"        ",
+					"        if (data.refreshToken) {",
+					"            pm.environment.set('refresh_token', data.refreshToken);",
+					"        }",
+					"        ",
+					"        // Save user information",
+					"        if (data.userId) {",
+					"            pm.environment.set('user_id', data.userId);",
+					"        }",
+					"        ",
+					"        if (data.id && pm.request.url.path.includes('player/profile')) {",
+					"            pm.environment.set('player_profile_id', data.id);",
+					"        }",
+					"        ",
+					"        // Save user info from user object",
+					"        if (data.user) {",
+					"            if (data.user.id) {",
+					"                pm.environment.set('user_id', data.user.id);",
+					"            }",
+					"            if (data.user.fullName) {",
+					"                pm.environment.set('user_full_name', data.user.fullName);",
+					"            }",
+					"            if (data.user.phone) {",
+					"                pm.environment.set('user_phone', data.user.phone);",
+					"            }",
+					"            if (data.user.email) {",
+					"                pm.environment.set('user_email', data.user.email);",
+					"            }",
+					"        }",
+					"    } else {",
+					"        // Fallback for old format",
+					"        if (responseJson.accessToken) {",
+					"            pm.environment.set('access_token', responseJson.accessToken);",
+					"        }",
+					"        ",
+					"        if (responseJson.refreshToken) {",
+					"            pm.environment.set('refresh_token', responseJson.refreshToken);",
+					"        }",
+					"        ",
+					"        if (responseJson.userId) {",
+					"            pm.environment.set('user_id', responseJson.userId);",
+					"        }",
+					"        ",
+					"        if (responseJson.id && pm.request.url.path.includes('player/profile')) {",
+					"            pm.environment.set('player_profile_id', responseJson.id);",
+					"        }",
+					"    }",
+					"}",
+					"",
+					"// Log response for debugging",
+					"console.log('Response Status:', pm.response.code);",
+					"console.log('Response Body:', pm.response.text());",
+					"",
+					"// Validate new response format",
+					"if (pm.response.code === 200 || pm.response.code === 201) {",
+					"    const responseJson = pm.response.json();",
+					"    ",
+					"    if (responseJson.status && responseJson.code && responseJson.message) {",
+					"        console.log('✅ New response format detected');",
+					"        ",
+					"        if (responseJson.status === 'success') {",
+					"            console.log('✅ Success response');",
+					"        } else if (responseJson.status === 'fail') {",
+					"            console.log('❌ Error response:', responseJson.message);",
+					"        }",
+					"    } else {",
+					"        console.log('⚠️ Old response format detected');",
+					"    }",
+					"}"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "access_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "refresh_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "user_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "player_profile_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "user_full_name",
+			"value": "Test User",
+			"type": "string"
+		},
+		{
+			"key": "user_phone",
+			"value": "0123456789",
+			"type": "string"
+		},
+		{
+			"key": "user_email",
+			"value": "test@example.com",
+			"type": "string"
+		},
+		{
+			"key": "user_password",
+			"value": "password123",
+			"type": "string"
+		},
+		{
+			"key": "updated_full_name",
+			"value": "Updated Test User",
+			"type": "string"
+		},
+		{
+			"key": "updated_email",
+			"value": "updated@example.com",
+			"type": "string"
+		},
+		{
+			"key": "updated_phone",
+			"value": "0987654321",
+			"type": "string"
+		},
+		{
+			"key": "new_password",
+			"value": "newpassword456",
+			"type": "string"
+		},
+		{
+			"key": "player_level",
+			"value": "good",
+			"type": "string"
+		},
+		{
+			"key": "player_gender",
+			"value": "male",
+			"type": "string"
+		},
+		{
+			"key": "player_location",
+			"value": "Ho Chi Minh City",
+			"type": "string"
+		},
+		{
+			"key": "player_latitude",
+			"value": "10.8231",
+			"type": "string"
+		},
+		{
+			"key": "player_longitude",
+			"value": "106.6297",
+			"type": "string"
+		},
+		{
+			"key": "player_bio",
+			"value": "Passionate tennis player",
+			"type": "string"
+		},
+		{
+			"key": "suggestion_level",
+			"value": "good",
+			"type": "string"
+		},
+		{
+			"key": "suggestion_latitude",
+			"value": "10.8231",
+			"type": "string"
+		},
+		{
+			"key": "suggestion_longitude",
+			"value": "106.6297",
+			"type": "string"
+		},
+		{
+			"key": "suggestion_radius",
+			"value": "10",
+			"type": "string"
+		},
+		{
+			"key": "suggestion_limit",
+			"value": "5",
+			"type": "string"
+		}
+	]
+}

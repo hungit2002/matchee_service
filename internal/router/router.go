@@ -10,6 +10,7 @@ import (
 
 	"matchee/services/internal/config"
 	"matchee/services/internal/controller"
+	"matchee/services/internal/entity"
 	"matchee/services/internal/middleware"
 	"matchee/services/internal/repository"
 	"matchee/services/internal/service"
@@ -21,7 +22,11 @@ func BuildHTTPRouter(cfg *config.Config, logger interface{ Infof(string, ...any)
 	r.Use(gin.Recovery())
 
 	r.GET("/health", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"status": "ok", "app": cfg.AppName})
+		c.JSON(http.StatusOK, entity.OKResponse("Service is healthy", gin.H{
+			"app":     cfg.AppName,
+			"version": "1.0.0",
+			"status":  "running",
+		}))
 	})
 
 	// Wire repositories

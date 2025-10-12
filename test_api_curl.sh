@@ -45,11 +45,15 @@ make_request() {
     echo "📥 Response: $response"
     echo "---"
     
-    # Extract tokens if present
-    if echo "$response" | grep -q "accessToken"; then
-        ACCESS_TOKEN=$(echo "$response" | grep -o '"accessToken":"[^"]*"' | cut -d'"' -f4)
-        REFRESH_TOKEN=$(echo "$response" | grep -o '"refreshToken":"[^"]*"' | cut -d'"' -f4)
-        echo "🔑 Tokens extracted and saved"
+    # Extract tokens if present (new response format)
+    if echo "$response" | grep -q '"status":"success"'; then
+        if echo "$response" | grep -q "accessToken"; then
+            ACCESS_TOKEN=$(echo "$response" | grep -o '"accessToken":"[^"]*"' | cut -d'"' -f4)
+            REFRESH_TOKEN=$(echo "$response" | grep -o '"refreshToken":"[^"]*"' | cut -d'"' -f4)
+            echo "🔑 Tokens extracted and saved"
+        fi
+    else
+        echo "❌ Request failed - check response"
     fi
     
     # Check for role information

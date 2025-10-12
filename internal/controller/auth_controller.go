@@ -34,21 +34,21 @@ func NewAuthController(authUC usecase.AuthUsecase) *AuthController {
 func (ac *AuthController) Register(c *gin.Context) {
 	var req entity.RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, entity.BadRequestResponse(err.Error()))
 		return
 	}
 
 	response, err := ac.authUC.Register(&req)
 	if err != nil {
-		status := http.StatusBadRequest
 		if err.Error() == "phone number already exists" || err.Error() == "email already exists" {
-			status = http.StatusConflict
+			c.JSON(http.StatusConflict, entity.ConflictResponse(err.Error()))
+		} else {
+			c.JSON(http.StatusBadRequest, entity.BadRequestResponse(err.Error()))
 		}
-		c.JSON(status, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusCreated, response)
+	c.JSON(http.StatusCreated, entity.CreatedResponse("User registered successfully", response))
 }
 
 // Login handles user login
@@ -65,17 +65,17 @@ func (ac *AuthController) Register(c *gin.Context) {
 func (ac *AuthController) Login(c *gin.Context) {
 	var req entity.LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, entity.BadRequestResponse(err.Error()))
 		return
 	}
 
 	response, err := ac.authUC.Login(&req)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		c.JSON(http.StatusUnauthorized, entity.UnauthorizedResponse(err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusOK, response)
+	c.JSON(http.StatusOK, entity.OKResponse("Login successful", response))
 }
 
 // RefreshToken handles token refresh
@@ -92,17 +92,17 @@ func (ac *AuthController) Login(c *gin.Context) {
 func (ac *AuthController) RefreshToken(c *gin.Context) {
 	var req entity.RefreshTokenRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, entity.BadRequestResponse(err.Error()))
 		return
 	}
 
 	response, err := ac.authUC.RefreshToken(&req)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		c.JSON(http.StatusUnauthorized, entity.UnauthorizedResponse(err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusOK, response)
+	c.JSON(http.StatusOK, entity.OKResponse("Token refreshed successfully", response))
 }
 
 // Logout handles user logout
@@ -118,16 +118,16 @@ func (ac *AuthController) RefreshToken(c *gin.Context) {
 func (ac *AuthController) Logout(c *gin.Context) {
 	var req entity.RefreshTokenRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, entity.BadRequestResponse(err.Error()))
 		return
 	}
 
 	if err := ac.authUC.Logout(req.RefreshToken); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, entity.BadRequestResponse(err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Logged out successfully"})
+	c.JSON(http.StatusOK, entity.OKResponse("Logged out successfully", nil))
 }
 
 // GetCurrentUser handles getting current user info
@@ -144,20 +144,20 @@ func (ac *AuthController) Logout(c *gin.Context) {
 func (ac *AuthController) GetCurrentUser(c *gin.Context) {
 	userID, exists := middleware.GetCurrentUserID(c)
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		c.JSON(http.StatusUnauthorized, entity.UnauthorizedResponse("User not authenticated"))
 		return
 	}
 
 	user, err := ac.authUC.GetCurrentUser(userID)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		c.JSON(http.StatusNotFound, entity.NotFoundResponse(err.Error()))
 		return
 	}
 
 	// Remove sensitive information
 	user.PasswordHash = ""
 
-	c.JSON(http.StatusOK, user)
+	c.JSON(http.StatusOK, entity.OKResponse("User information retrieved successfully", user))
 }
 
 // UpdateProfile handles updating user profile
@@ -177,32 +177,32 @@ func (ac *AuthController) GetCurrentUser(c *gin.Context) {
 func (ac *AuthController) UpdateProfile(c *gin.Context) {
 	userID, exists := middleware.GetCurrentUserID(c)
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		c.JSON(http.StatusUnauthorized, entity.UnauthorizedResponse("User not authenticated"))
 		return
 	}
 
 	var req entity.UpdateProfileRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, entity.BadRequestResponse(err.Error()))
 		return
 	}
 
 	user, err := ac.authUC.UpdateProfile(userID, &req)
 	if err != nil {
-		status := http.StatusBadRequest
 		if err.Error() == "user not found" {
-			status = http.StatusNotFound
+			c.JSON(http.StatusNotFound, entity.NotFoundResponse(err.Error()))
 		} else if err.Error() == "phone number already exists" || err.Error() == "email already exists" {
-			status = http.StatusConflict
+			c.JSON(http.StatusConflict, entity.ConflictResponse(err.Error()))
+		} else {
+			c.JSON(http.StatusBadRequest, entity.BadRequestResponse(err.Error()))
 		}
-		c.JSON(status, gin.H{"error": err.Error()})
 		return
 	}
 
 	// Remove sensitive information
 	user.PasswordHash = ""
 
-	c.JSON(http.StatusOK, user)
+	c.JSON(http.StatusOK, entity.OKResponse("Profile updated successfully", user))
 }
 
 // ChangePassword handles password change
@@ -221,26 +221,26 @@ func (ac *AuthController) UpdateProfile(c *gin.Context) {
 func (ac *AuthController) ChangePassword(c *gin.Context) {
 	userID, exists := middleware.GetCurrentUserID(c)
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		c.JSON(http.StatusUnauthorized, entity.UnauthorizedResponse("User not authenticated"))
 		return
 	}
 
 	var req entity.ChangePasswordRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, entity.BadRequestResponse(err.Error()))
 		return
 	}
 
 	if err := ac.authUC.ChangePassword(userID, &req); err != nil {
-		status := http.StatusBadRequest
 		if err.Error() == "user not found" {
-			status = http.StatusNotFound
+			c.JSON(http.StatusNotFound, entity.NotFoundResponse(err.Error()))
 		} else if err.Error() == "current password is incorrect" {
-			status = http.StatusUnauthorized
+			c.JSON(http.StatusUnauthorized, entity.UnauthorizedResponse(err.Error()))
+		} else {
+			c.JSON(http.StatusBadRequest, entity.BadRequestResponse(err.Error()))
 		}
-		c.JSON(status, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Password changed successfully"})
+	c.JSON(http.StatusOK, entity.OKResponse("Password changed successfully", nil))
 }

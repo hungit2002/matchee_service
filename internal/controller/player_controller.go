@@ -36,23 +36,23 @@ func NewPlayerController(playerUC usecase.PlayerUsecase) *PlayerController {
 func (pc *PlayerController) CreateOrUpdatePlayerProfile(c *gin.Context) {
 	userID, exists := middleware.GetCurrentUserID(c)
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		c.JSON(http.StatusUnauthorized, entity.UnauthorizedResponse("User not authenticated"))
 		return
 	}
 
 	var req entity.CreateUpdatePlayerProfileRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, entity.BadRequestResponse(err.Error()))
 		return
 	}
 
 	response, err := pc.playerUC.CreateOrUpdatePlayerProfile(userID, &req)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, entity.BadRequestResponse(err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusOK, response)
+	c.JSON(http.StatusOK, entity.OKResponse("Player profile created/updated successfully", response))
 }
 
 // GetPlayerProfileByID handles getting player profile by ID
@@ -70,17 +70,17 @@ func (pc *PlayerController) GetPlayerProfileByID(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid profile ID"})
+		c.JSON(http.StatusBadRequest, entity.BadRequestResponse("Invalid profile ID"))
 		return
 	}
 
 	response, err := pc.playerUC.GetPlayerProfileByID(id)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		c.JSON(http.StatusNotFound, entity.NotFoundResponse(err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusOK, response)
+	c.JSON(http.StatusOK, entity.OKResponse("Player profile retrieved successfully", response))
 }
 
 // GetPlayerProfileByUserID handles getting current user's player profile
@@ -97,17 +97,17 @@ func (pc *PlayerController) GetPlayerProfileByID(c *gin.Context) {
 func (pc *PlayerController) GetPlayerProfileByUserID(c *gin.Context) {
 	userID, exists := middleware.GetCurrentUserID(c)
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		c.JSON(http.StatusUnauthorized, entity.UnauthorizedResponse("User not authenticated"))
 		return
 	}
 
 	response, err := pc.playerUC.GetPlayerProfileByUserID(userID)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		c.JSON(http.StatusNotFound, entity.NotFoundResponse(err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusOK, response)
+	c.JSON(http.StatusOK, entity.OKResponse("Player profile retrieved successfully", response))
 }
 
 // GetPlayerSuggestions handles getting player suggestions
@@ -125,23 +125,23 @@ func (pc *PlayerController) GetPlayerProfileByUserID(c *gin.Context) {
 func (pc *PlayerController) GetPlayerSuggestions(c *gin.Context) {
 	userID, exists := middleware.GetCurrentUserID(c)
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		c.JSON(http.StatusUnauthorized, entity.UnauthorizedResponse("User not authenticated"))
 		return
 	}
 
 	var req entity.PlayerSuggestionRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, entity.BadRequestResponse(err.Error()))
 		return
 	}
 
 	response, err := pc.playerUC.GetPlayerSuggestions(userID, &req)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, entity.BadRequestResponse(err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusOK, response)
+	c.JSON(http.StatusOK, entity.OKResponse("Player suggestions retrieved successfully", response))
 }
 
 // GetPlayerSuggestionsQuery handles getting player suggestions via query parameters
@@ -163,7 +163,7 @@ func (pc *PlayerController) GetPlayerSuggestions(c *gin.Context) {
 func (pc *PlayerController) GetPlayerSuggestionsQuery(c *gin.Context) {
 	userID, exists := middleware.GetCurrentUserID(c)
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		c.JSON(http.StatusUnauthorized, entity.UnauthorizedResponse("User not authenticated"))
 		return
 	}
 
@@ -200,9 +200,9 @@ func (pc *PlayerController) GetPlayerSuggestionsQuery(c *gin.Context) {
 
 	response, err := pc.playerUC.GetPlayerSuggestions(userID, req)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, entity.BadRequestResponse(err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusOK, response)
+	c.JSON(http.StatusOK, entity.OKResponse("Player suggestions retrieved successfully", response))
 }
