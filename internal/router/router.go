@@ -10,7 +10,9 @@ import (
 
 	"matchee/services/internal/config"
 	"matchee/services/internal/controller"
+	"matchee/services/internal/middleware"
 	"matchee/services/internal/repository"
+	"matchee/services/internal/service"
 	"matchee/services/internal/usecase"
 )
 
@@ -22,15 +24,46 @@ func BuildHTTPRouter(cfg *config.Config, logger interface{ Infof(string, ...any)
 		c.JSON(http.StatusOK, gin.H{"status": "ok", "app": cfg.AppName})
 	})
 
-	// Wire users
+	// Wire repositories
 	userRepo := repository.NewUserRepository(db)
-	userUC := usecase.NewUserUsecase(userRepo)
-	userCtl := controller.NewUserController(userUC)
+	authRepo := repository.NewAuthRepository(db)
 
+	// Wire services
+	jwtService := service.NewJWTService(cfg.JWTSecret, cfg.JWTExpiry, cfg.RefreshExpiry, authRepo)
+
+	// Wire usecases
+	userUC := usecase.NewUserUsecase(userRepo)
+	authUC := usecase.NewAuthUsecase(authRepo, userRepo, jwtService)
+
+	// Wire controllers
+	userCtl := controller.NewUserController(userUC)
+	authCtl := controller.NewAuthController(authUC)
+
+	// Wire middleware
+	authMiddleware := middleware.NewAuthMiddleware(jwtService)
+
+	// API routes
 	api := r.Group("/api")
-	users := api.Group("/users")
-	users.POST("", userCtl.Register)
-	users.GET(":id", userCtl.Get)
+	v1 := api.Group("/v1")
+
+	// Auth routes (no authentication required)
+	auth := v1.Group("/auth")
+	auth.POST("/register", authCtl.Register)
+	auth.POST("/login", authCtl.Login)
+	auth.POST("/refresh", authCtl.RefreshToken)
+	auth.POST("/logout", authCtl.Logout)
+
+	// User routes (authentication required)
+	users := v1.Group("/users")
+	users.Use(authMiddleware.RequireAuth())
+	users.GET("/me", authCtl.GetCurrentUser)
+	users.PUT("/me", authCtl.UpdateProfile)
+	users.POST("/change-password", authCtl.ChangePassword)
+
+	// Legacy user routes (for backward compatibility)
+	legacyUsers := api.Group("/users")
+	legacyUsers.POST("", userCtl.Register)
+	legacyUsers.GET(":id", userCtl.Get)
 
 	return r
 }

@@ -15,6 +15,9 @@ type Config struct {
 	RedisDB         int
 	RedisPassword   string
 	RabbitURL       string
+	JWTSecret       string
+	JWTExpiry       time.Duration
+	RefreshExpiry   time.Duration
 	ShutdownTimeout time.Duration
 }
 
@@ -28,6 +31,9 @@ func Load() (*Config, error) {
 		RedisDB:         getEnvInt("REDIS_DB", 0),
 		RedisPassword:   os.Getenv("REDIS_PASSWORD"),
 		RabbitURL:       getEnv("RABBITMQ_URL", "amqp://guest:guest@127.0.0.1:5672/"),
+		JWTSecret:       getEnv("JWT_SECRET", "your-secret-key-change-in-production"),
+		JWTExpiry:       getEnvDuration("JWT_EXPIRY", 15*time.Minute),
+		RefreshExpiry:   getEnvDuration("REFRESH_EXPIRY", 7*24*time.Hour),
 		ShutdownTimeout: getEnvDuration("SHUTDOWN_TIMEOUT", 10*time.Second),
 	}
 	return c, nil
