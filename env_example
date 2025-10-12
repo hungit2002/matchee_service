@@ -1,7 +1,7 @@
 APP_NAME=matchee-services
 HTTP_HOST=0.0.0.0
 HTTP_PORT=8080
-MYSQL_DSN=
+MYSQL_DSN=root:Tranduyhung11@tcp(host.docker.internal:3306)/matchee?charset=utf8mb4&parseTime=True&loc=Local
 REDIS_ADDR=127.0.0.1:6379
 REDIS_DB=0
 REDIS_PASSWORD=
