@@ -10,6 +10,7 @@ import (
 
 	"matchee/services/internal/config"
 	"matchee/services/internal/controller"
+	"matchee/services/internal/entity"
 	"matchee/services/internal/middleware"
 	"matchee/services/internal/repository"
 	"matchee/services/internal/service"
@@ -21,12 +22,17 @@ func BuildHTTPRouter(cfg *config.Config, logger interface{ Infof(string, ...any)
 	r.Use(gin.Recovery())
 
 	r.GET("/health", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"status": "ok", "app": cfg.AppName})
+		c.JSON(http.StatusOK, entity.OKResponse("Service is healthy", gin.H{
+			"app":     cfg.AppName,
+			"version": "1.0.0",
+			"status":  "running",
+		}))
 	})
 
 	// Wire repositories
 	userRepo := repository.NewUserRepository(db)
 	authRepo := repository.NewAuthRepository(db)
+	playerRepo := repository.NewPlayerRepository(db)
 
 	// Wire services
 	jwtService := service.NewJWTService(cfg.JWTSecret, cfg.JWTExpiry, cfg.RefreshExpiry, authRepo)
@@ -34,10 +40,12 @@ func BuildHTTPRouter(cfg *config.Config, logger interface{ Infof(string, ...any)
 	// Wire usecases
 	userUC := usecase.NewUserUsecase(userRepo)
 	authUC := usecase.NewAuthUsecase(authRepo, userRepo, jwtService)
+	playerUC := usecase.NewPlayerUsecase(playerRepo)
 
 	// Wire controllers
 	userCtl := controller.NewUserController(userUC)
 	authCtl := controller.NewAuthController(authUC)
+	playerCtl := controller.NewPlayerController(playerUC)
 
 	// Wire middleware
 	authMiddleware := middleware.NewAuthMiddleware(jwtService)
@@ -59,6 +67,14 @@ func BuildHTTPRouter(cfg *config.Config, logger interface{ Infof(string, ...any)
 	users.GET("/me", authCtl.GetCurrentUser)
 	users.PUT("/me", authCtl.UpdateProfile)
 	users.POST("/change-password", authCtl.ChangePassword)
+
+	// Player routes (authentication required)
+	player := v1.Group("/player")
+	player.Use(authMiddleware.RequireAuth())
+	player.POST("/profile", playerCtl.CreateOrUpdatePlayerProfile)
+	player.GET("/profile", playerCtl.GetPlayerProfileByUserID)
+	player.GET("/profile/:id", playerCtl.GetPlayerProfileByID)
+	player.GET("/suggestions", playerCtl.GetPlayerSuggestionsQuery)
 
 	// Legacy user routes (for backward compatibility)
 	legacyUsers := api.Group("/users")

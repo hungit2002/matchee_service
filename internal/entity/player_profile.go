@@ -11,6 +11,7 @@ type PlayerProfile struct {
 	Latitude          *float64   `gorm:"type:decimal(10,7)" json:"latitude,omitempty"`
 	Longitude         *float64   `gorm:"type:decimal(10,7)" json:"longitude,omitempty"`
 	Bio               *string    `gorm:"type:text" json:"bio,omitempty"`
+	Distance          *float64   `gorm:"-" json:"distance,omitempty"` // Calculated field, not stored in DB
 	CreatedAt         time.Time  `gorm:"autoCreateTime" json:"createdAt"`
 	UpdatedAt         time.Time  `gorm:"autoUpdateTime" json:"updatedAt"`
 	DeletedAt         *time.Time `gorm:"index" json:"deletedAt,omitempty"`

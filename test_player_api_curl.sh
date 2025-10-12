@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Matchee Auth API Test Script
+# Matchee Player Profile API Test Script
 # Base URL
 BASE_URL="http://localhost:8080"
 
-echo "🚀 Testing Matchee Auth API..."
-echo "================================"
+echo "🏓 Testing Matchee Player Profile API..."
+echo "========================================"
 
 # Variables to store tokens
 ACCESS_TOKEN=""
@@ -55,11 +55,6 @@ make_request() {
     else
         echo "❌ Request failed - check response"
     fi
-    
-    # Check for role information
-    if echo "$response" | grep -q "userRoles"; then
-        echo "👤 User roles information included in response"
-    fi
 }
 
 echo ""
@@ -67,16 +62,7 @@ echo "1️⃣ Health Check"
 make_request "GET" "/health"
 
 echo ""
-echo "2️⃣ Register User (with default player role)"
-make_request "POST" "/api/v1/auth/register" '{
-  "fullName": "Nguyễn Văn A",
-  "phone": "0123456789",
-  "email": "user@example.com",
-  "password": "password123"
-}'
-
-echo ""
-echo "3️⃣ Login User"
+echo "2️⃣ Login User (to get token)"
 make_request "POST" "/api/v1/auth/login" '{
   "phone": "0123456789",
   "password": "password123"
@@ -84,46 +70,57 @@ make_request "POST" "/api/v1/auth/login" '{
 
 if [ -n "$ACCESS_TOKEN" ]; then
     echo ""
-    echo "4️⃣ Get Current User (with token)"
-    make_request "GET" "/api/v1/users/me" "" "Authorization: Bearer $ACCESS_TOKEN"
-    
-    echo ""
-    echo "5️⃣ Update Profile (with token)"
-    make_request "PUT" "/api/v1/users/me" '{
-      "fullName": "Nguyễn Văn B",
-      "email": "newemail@example.com",
-      "phone": "0987654321"
+    echo "3️⃣ Create/Update Player Profile"
+    make_request "POST" "/api/v1/player/profile" '{
+      "level": "good",
+      "gender": "male",
+      "preferredLocation": "Ho Chi Minh City",
+      "latitude": 10.8231,
+      "longitude": 106.6297,
+      "bio": "Passionate tennis player looking for matches"
     }' "Authorization: Bearer $ACCESS_TOKEN"
     
     echo ""
-    echo "6️⃣ Change Password (with token)"
-    make_request "POST" "/api/v1/users/change-password" '{
-      "currentPassword": "password123",
-      "newPassword": "newpassword456"
+    echo "4️⃣ Get Current User Player Profile"
+    make_request "GET" "/api/v1/player/profile" "" "Authorization: Bearer $ACCESS_TOKEN"
+    
+    echo ""
+    echo "5️⃣ Get Player Suggestions (by level)"
+    make_request "GET" "/api/v1/player/suggestions?level=good&limit=5" "" "Authorization: Bearer $ACCESS_TOKEN"
+    
+    echo ""
+    echo "6️⃣ Get Player Suggestions (by location)"
+    make_request "GET" "/api/v1/player/suggestions?latitude=10.8231&longitude=106.6297&radius=5&limit=5" "" "Authorization: Bearer $ACCESS_TOKEN"
+    
+    echo ""
+    echo "7️⃣ Get Player Suggestions (combined criteria)"
+    make_request "GET" "/api/v1/player/suggestions?level=average&latitude=10.8231&longitude=106.6297&radius=10&limit=10" "" "Authorization: Bearer $ACCESS_TOKEN"
+    
+    echo ""
+    echo "8️⃣ Update Player Profile"
+    make_request "POST" "/api/v1/player/profile" '{
+      "level": "pro",
+      "gender": "male",
+      "preferredLocation": "District 1, Ho Chi Minh City",
+      "latitude": 10.7769,
+      "longitude": 106.7009,
+      "bio": "Professional tennis player with 10+ years experience"
     }' "Authorization: Bearer $ACCESS_TOKEN"
     
-    if [ -n "$REFRESH_TOKEN" ]; then
-        echo ""
-        echo "7️⃣ Refresh Token"
-        make_request "POST" "/api/v1/auth/refresh" "{
-          \"refreshToken\": \"$REFRESH_TOKEN\"
-        }"
-        
-        echo ""
-        echo "8️⃣ Logout"
-        make_request "POST" "/api/v1/auth/logout" "{
-          \"refreshToken\": \"$REFRESH_TOKEN\"
-        }"
-    fi
+    echo ""
+    echo "9️⃣ Get Updated Profile"
+    make_request "GET" "/api/v1/player/profile" "" "Authorization: Bearer $ACCESS_TOKEN"
+    
 else
     echo "❌ No access token available, skipping authenticated requests"
+    echo "💡 Please run the auth test first to get tokens"
 fi
 
 echo ""
-echo "✅ API testing completed!"
+echo "✅ Player Profile API testing completed!"
 echo ""
 echo "💡 Tips:"
 echo "- Make sure the server is running on $BASE_URL"
+echo "- Ensure you have a valid user account"
 echo "- Check the database connection"
 echo "- Verify JWT_SECRET is set in environment"
-echo "- Run migrations: make migrate-up"
