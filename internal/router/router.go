@@ -36,6 +36,7 @@ func BuildHTTPRouter(cfg *config.Config, logger interface{ Infof(string, ...any)
 	venueRepo := repository.NewVenueRepository(db)
 	courtRepo := repository.NewCourtRepository(db)
 	slotRepo := repository.NewSlotRepository(db)
+	matchPostRepo := repository.NewMatchPostRepository(db)
 
 	// Wire services
 	jwtService := service.NewJWTService(cfg.JWTSecret, cfg.JWTExpiry, cfg.RefreshExpiry, authRepo)
@@ -47,6 +48,7 @@ func BuildHTTPRouter(cfg *config.Config, logger interface{ Infof(string, ...any)
 	venueUC := usecase.NewVenueUsecase(venueRepo)
 	courtUC := usecase.NewCourtUsecase(courtRepo, venueRepo)
 	slotUC := usecase.NewSlotUsecase(slotRepo, courtRepo)
+	matchPostUC := usecase.NewMatchPostUsecase(matchPostRepo, userRepo, venueRepo)
 
 	// Wire controllers
 	userCtl := controller.NewUserController(userUC)
@@ -55,6 +57,7 @@ func BuildHTTPRouter(cfg *config.Config, logger interface{ Infof(string, ...any)
 	venueCtl := controller.NewVenueController(venueUC)
 	courtCtl := controller.NewCourtController(courtUC)
 	slotCtl := controller.NewSlotController(slotUC)
+	matchPostCtl := controller.NewMatchPostController(matchPostUC)
 
 	// Wire middleware
 	authMiddleware := middleware.NewAuthMiddleware(jwtService)
@@ -113,6 +116,15 @@ func BuildHTTPRouter(cfg *config.Config, logger interface{ Infof(string, ...any)
 	// Court-specific slot routes
 	courts.POST("/:id/slots", authMiddleware.RequireAuth(), slotCtl.CreateSlot) // Private: Create slot for court
 	courts.GET("/:id/slots", slotCtl.GetSlotsByCourt)                           // Public: Get slots for court
+
+	// Match Post routes
+	matchPosts := v1.Group("/match-posts")
+	matchPosts.POST("", authMiddleware.RequireAuth(), matchPostCtl.CreateMatchPost)       // Private: Create match post
+	matchPosts.GET("", matchPostCtl.GetMatchPosts)                                        // Public: Get match posts with filters
+	matchPosts.GET("/suggest", matchPostCtl.GetSuggestedMatchPosts)                       // Public: Get suggested match posts
+	matchPosts.GET("/:id", matchPostCtl.GetMatchPostByID)                                 // Public: Get match post details
+	matchPosts.PUT("/:id", authMiddleware.RequireAuth(), matchPostCtl.UpdateMatchPost)    // Private: Update match post
+	matchPosts.DELETE("/:id", authMiddleware.RequireAuth(), matchPostCtl.DeleteMatchPost) // Private: Delete match post
 
 	// Legacy user routes (for backward compatibility)
 	legacyUsers := api.Group("/users")
