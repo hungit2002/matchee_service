@@ -1,0 +1,32 @@
+version: "3.9"
+
+services:
+
+  # Redis và RabbitMQ sẽ dùng dịch vụ local trên host
+
+  app:
+    build: .
+    image: matchee/services:latest
+    container_name: matchee-app
+    # Không còn phụ thuộc migrate; chạy migrate thủ công nếu cần
+    env_file:
+      - .env
+    environment:
+      HTTP_HOST: 0.0.0.0
+      HTTP_PORT: 8080
+      # Lấy DSN từ host, trỏ tới MySQL local
+      MYSQL_DSN: ${MYSQL_DSN}
+      # Redis local trên host
+      REDIS_ADDR: host.docker.internal:6379
+      REDIS_DB: 0
+      REDIS_PASSWORD: ""
+      # RabbitMQ local trên host
+      RABBITMQ_URL: amqp://guest:guest@host.docker.internal:5672/
+      SHUTDOWN_TIMEOUT: 10s
+    ports:
+      - "8081:8080" # đổi host port để tránh xung đột
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+
