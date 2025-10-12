@@ -2,7 +2,7 @@
 	"info": {
 		"_postman_id": "matchee-all-apis",
 		"name": "Matchee All APIs",
-		"description": "Complete collection for all Matchee APIs - Auth, User Management, Player Profile, and Environments",
+		"description": "Complete collection for all Matchee APIs - Auth, User Management, Player Profile, Venue & Court, and Environments",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
@@ -505,6 +505,536 @@
 			"description": "Player suggestion endpoints with new response format"
 		},
 		{
+			"name": "Venue Management",
+			"item": [
+				{
+					"name": "Create Venue",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"{{venue_name}}\",\n  \"description\": \"{{venue_description}}\",\n  \"address\": \"{{venue_address}}\",\n  \"latitude\": {{venue_latitude}},\n  \"longitude\": {{venue_longitude}},\n  \"phone\": \"{{venue_phone}}\",\n  \"email\": \"{{venue_email}}\",\n  \"website\": \"{{venue_website}}\",\n  \"pricePerHour\": {{venue_price_per_hour}},\n  \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/venues",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"venues"
+							]
+						},
+						"description": "Create a new venue (for venue owners). Response includes new format with status, code, message, and data fields."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Venues",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/venues?latitude={{venue_latitude}}&longitude={{venue_longitude}}&radius={{venue_radius}}&minPrice={{venue_min_price}}&maxPrice={{venue_max_price}}&isActive=true&page=1&limit=20",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"venues"
+							],
+							"query": [
+								{
+									"key": "latitude",
+									"value": "{{venue_latitude}}"
+								},
+								{
+									"key": "longitude",
+									"value": "{{venue_longitude}}"
+								},
+								{
+									"key": "radius",
+									"value": "{{venue_radius}}"
+								},
+								{
+									"key": "minPrice",
+									"value": "{{venue_min_price}}"
+								},
+								{
+									"key": "maxPrice",
+									"value": "{{venue_max_price}}"
+								},
+								{
+									"key": "isActive",
+									"value": "true"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "20"
+								}
+							]
+						},
+						"description": "Get list of venues with optional filters (location, price, etc.). Response includes new format with status, code, message, and data fields."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Venue by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/venues/{{venue_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"venues",
+								"{{venue_id}}"
+							]
+						},
+						"description": "Get detailed venue information by ID. Response includes new format with status, code, message, and data fields."
+					},
+					"response": []
+				},
+				{
+					"name": "Get My Venues",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/venues/my?page=1&limit=20",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"venues",
+								"my"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "20"
+								}
+							]
+						},
+						"description": "Get venues owned by current user. Response includes new format with status, code, message, and data fields."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Venue",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"{{updated_venue_name}}\",\n  \"description\": \"{{updated_venue_description}}\",\n  \"pricePerHour\": {{updated_venue_price_per_hour}}\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/venues/{{venue_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"venues",
+								"{{venue_id}}"
+							]
+						},
+						"description": "Update venue information. Response includes new format with status, code, message, and data fields."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Venue",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/venues/{{venue_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"venues",
+								"{{venue_id}}"
+							]
+						},
+						"description": "Delete a venue. Response includes new format with status, code, message, and data fields."
+					},
+					"response": []
+				}
+			],
+			"description": "Venue management endpoints with new response format"
+		},
+		{
+			"name": "Court Management",
+			"item": [
+				{
+					"name": "Create Court",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"{{court_name}}\",\n  \"description\": \"{{court_description}}\",\n  \"courtType\": \"{{court_type}}\",\n  \"surface\": \"{{court_surface}}\",\n  \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/venues/{{venue_id}}/courts",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"venues",
+								"{{venue_id}}",
+								"courts"
+							]
+						},
+						"description": "Create a new court for a venue. Response includes new format with status, code, message, and data fields."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Courts by Venue",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/venues/{{venue_id}}/courts?page=1&limit=20",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"venues",
+								"{{venue_id}}",
+								"courts"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "20"
+								}
+							]
+						},
+						"description": "Get list of courts for a specific venue. Response includes new format with status, code, message, and data fields."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Court by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/courts/{{court_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"courts",
+								"{{court_id}}"
+							]
+						},
+						"description": "Get detailed court information by ID. Response includes new format with status, code, message, and data fields."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Court",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"{{updated_court_name}}\",\n  \"description\": \"{{updated_court_description}}\",\n  \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/courts/{{court_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"courts",
+								"{{court_id}}"
+							]
+						},
+						"description": "Update court information. Response includes new format with status, code, message, and data fields."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Court",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/courts/{{court_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"courts",
+								"{{court_id}}"
+							]
+						},
+						"description": "Delete a court. Response includes new format with status, code, message, and data fields."
+					},
+					"response": []
+				}
+			],
+			"description": "Court management endpoints with new response format"
+		},
+		{
+			"name": "Availability Slots",
+			"item": [
+				{
+					"name": "Create Slot",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"startTime\": \"{{slot_start_time}}\",\n  \"endTime\": \"{{slot_end_time}}\",\n  \"price\": {{slot_price}},\n  \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/courts/{{court_id}}/slots",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"courts",
+								"{{court_id}}",
+								"slots"
+							]
+						},
+						"description": "Create a new availability slot for a court. Response includes new format with status, code, message, and data fields."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Slots by Court",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/courts/{{court_id}}/slots?startDate={{slot_start_date}}&endDate={{slot_end_date}}&isActive=true&page=1&limit=20",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"courts",
+								"{{court_id}}",
+								"slots"
+							],
+							"query": [
+								{
+									"key": "startDate",
+									"value": "{{slot_start_date}}"
+								},
+								{
+									"key": "endDate",
+									"value": "{{slot_end_date}}"
+								},
+								{
+									"key": "isActive",
+									"value": "true"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "20"
+								}
+							]
+						},
+						"description": "Get list of availability slots for a specific court. Response includes new format with status, code, message, and data fields."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Slot by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/slots/{{slot_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"slots",
+								"{{slot_id}}"
+							]
+						},
+						"description": "Get detailed slot information by ID. Response includes new format with status, code, message, and data fields."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Slot",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"startTime\": \"{{updated_slot_start_time}}\",\n  \"endTime\": \"{{updated_slot_end_time}}\",\n  \"price\": {{updated_slot_price}},\n  \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/slots/{{slot_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"slots",
+								"{{slot_id}}"
+							]
+						},
+						"description": "Update availability slot information. Response includes new format with status, code, message, and data fields."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Slot",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/slots/{{slot_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"slots",
+								"{{slot_id}}"
+							]
+						},
+						"description": "Delete an availability slot. Response includes new format with status, code, message, and data fields."
+					},
+					"response": []
+				}
+			],
+			"description": "Availability slot management endpoints with new response format"
+		},
+		{
 			"name": "Complete Test Flows",
 			"item": [
 				{
@@ -910,6 +1440,21 @@
 					"            pm.environment.set('player_profile_id', data.id);",
 					"        }",
 					"        ",
+					"        // Save venue ID if available",
+					"        if (data.id && pm.request.url.path.includes('venues') && !pm.request.url.path.includes('courts') && !pm.request.url.path.includes('slots')) {",
+					"            pm.environment.set('venue_id', data.id);",
+					"        }",
+					"        ",
+					"        // Save court ID if available",
+					"        if (data.id && pm.request.url.path.includes('courts') && !pm.request.url.path.includes('slots')) {",
+					"            pm.environment.set('court_id', data.id);",
+					"        }",
+					"        ",
+					"        // Save slot ID if available",
+					"        if (data.id && pm.request.url.path.includes('slots')) {",
+					"            pm.environment.set('slot_id', data.id);",
+					"        }",
+					"        ",
 					"        // Save user info from user object",
 					"        if (data.user) {",
 					"            if (data.user.id) {",
@@ -1088,6 +1633,166 @@
 		{
 			"key": "suggestion_limit",
 			"value": "5",
+			"type": "string"
+		},
+		{
+			"key": "venue_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "venue_name",
+			"value": "Tennis Center Ho Chi Minh",
+			"type": "string"
+		},
+		{
+			"key": "venue_description",
+			"value": "Premium tennis center with multiple courts",
+			"type": "string"
+		},
+		{
+			"key": "venue_address",
+			"value": "123 Nguyen Hue, District 1, Ho Chi Minh City",
+			"type": "string"
+		},
+		{
+			"key": "venue_latitude",
+			"value": "10.7769",
+			"type": "string"
+		},
+		{
+			"key": "venue_longitude",
+			"value": "106.7009",
+			"type": "string"
+		},
+		{
+			"key": "venue_phone",
+			"value": "+84901234567",
+			"type": "string"
+		},
+		{
+			"key": "venue_email",
+			"value": "info@tenniscenter.com",
+			"type": "string"
+		},
+		{
+			"key": "venue_website",
+			"value": "https://tenniscenter.com",
+			"type": "string"
+		},
+		{
+			"key": "venue_price_per_hour",
+			"value": "200000",
+			"type": "string"
+		},
+		{
+			"key": "venue_radius",
+			"value": "10",
+			"type": "string"
+		},
+		{
+			"key": "venue_min_price",
+			"value": "100000",
+			"type": "string"
+		},
+		{
+			"key": "venue_max_price",
+			"value": "500000",
+			"type": "string"
+		},
+		{
+			"key": "updated_venue_name",
+			"value": "Updated Tennis Center",
+			"type": "string"
+		},
+		{
+			"key": "updated_venue_description",
+			"value": "Updated premium tennis center",
+			"type": "string"
+		},
+		{
+			"key": "updated_venue_price_per_hour",
+			"value": "250000",
+			"type": "string"
+		},
+		{
+			"key": "court_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "court_name",
+			"value": "Court 1",
+			"type": "string"
+		},
+		{
+			"key": "court_description",
+			"value": "Professional hard court",
+			"type": "string"
+		},
+		{
+			"key": "court_type",
+			"value": "outdoor",
+			"type": "string"
+		},
+		{
+			"key": "court_surface",
+			"value": "hard",
+			"type": "string"
+		},
+		{
+			"key": "updated_court_name",
+			"value": "Updated Court 1",
+			"type": "string"
+		},
+		{
+			"key": "updated_court_description",
+			"value": "Updated professional hard court",
+			"type": "string"
+		},
+		{
+			"key": "slot_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "slot_start_time",
+			"value": "2024-01-15T09:00:00Z",
+			"type": "string"
+		},
+		{
+			"key": "slot_end_time",
+			"value": "2024-01-15T10:00:00Z",
+			"type": "string"
+		},
+		{
+			"key": "slot_price",
+			"value": "200000",
+			"type": "string"
+		},
+		{
+			"key": "slot_start_date",
+			"value": "2024-01-15T00:00:00Z",
+			"type": "string"
+		},
+		{
+			"key": "slot_end_date",
+			"value": "2024-01-15T23:59:59Z",
+			"type": "string"
+		},
+		{
+			"key": "updated_slot_start_time",
+			"value": "2024-01-15T10:00:00Z",
+			"type": "string"
+		},
+		{
+			"key": "updated_slot_end_time",
+			"value": "2024-01-15T11:00:00Z",
+			"type": "string"
+		},
+		{
+			"key": "updated_slot_price",
+			"value": "250000",
 			"type": "string"
 		}
 	]
