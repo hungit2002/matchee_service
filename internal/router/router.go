@@ -33,6 +33,9 @@ func BuildHTTPRouter(cfg *config.Config, logger interface{ Infof(string, ...any)
 	userRepo := repository.NewUserRepository(db)
 	authRepo := repository.NewAuthRepository(db)
 	playerRepo := repository.NewPlayerRepository(db)
+	venueRepo := repository.NewVenueRepository(db)
+	courtRepo := repository.NewCourtRepository(db)
+	slotRepo := repository.NewSlotRepository(db)
 
 	// Wire services
 	jwtService := service.NewJWTService(cfg.JWTSecret, cfg.JWTExpiry, cfg.RefreshExpiry, authRepo)
@@ -41,11 +44,17 @@ func BuildHTTPRouter(cfg *config.Config, logger interface{ Infof(string, ...any)
 	userUC := usecase.NewUserUsecase(userRepo)
 	authUC := usecase.NewAuthUsecase(authRepo, userRepo, jwtService)
 	playerUC := usecase.NewPlayerUsecase(playerRepo)
+	venueUC := usecase.NewVenueUsecase(venueRepo)
+	courtUC := usecase.NewCourtUsecase(courtRepo, venueRepo)
+	slotUC := usecase.NewSlotUsecase(slotRepo, courtRepo)
 
 	// Wire controllers
 	userCtl := controller.NewUserController(userUC)
 	authCtl := controller.NewAuthController(authUC)
 	playerCtl := controller.NewPlayerController(playerUC)
+	venueCtl := controller.NewVenueController(venueUC)
+	courtCtl := controller.NewCourtController(courtUC)
+	slotCtl := controller.NewSlotController(slotUC)
 
 	// Wire middleware
 	authMiddleware := middleware.NewAuthMiddleware(jwtService)
@@ -75,6 +84,35 @@ func BuildHTTPRouter(cfg *config.Config, logger interface{ Infof(string, ...any)
 	player.GET("/profile", playerCtl.GetPlayerProfileByUserID)
 	player.GET("/profile/:id", playerCtl.GetPlayerProfileByID)
 	player.GET("/suggestions", playerCtl.GetPlayerSuggestionsQuery)
+
+	// Venue routes
+	venues := v1.Group("/venues")
+	venues.GET("", venueCtl.GetVenues)                                        // Public: Get venues with filters
+	venues.GET("/:id", venueCtl.GetVenueByID)                                 // Public: Get venue details
+	venues.GET("/my", authMiddleware.RequireAuth(), venueCtl.GetMyVenues)     // Private: Get my venues
+	venues.POST("", authMiddleware.RequireAuth(), venueCtl.CreateVenue)       // Private: Create venue
+	venues.PUT("/:id", authMiddleware.RequireAuth(), venueCtl.UpdateVenue)    // Private: Update venue
+	venues.DELETE("/:id", authMiddleware.RequireAuth(), venueCtl.DeleteVenue) // Private: Delete venue
+
+	// Court routes
+	courts := v1.Group("/courts")
+	courts.GET("/:id", courtCtl.GetCourtByID)                                 // Public: Get court details
+	courts.PUT("/:id", authMiddleware.RequireAuth(), courtCtl.UpdateCourt)    // Private: Update court
+	courts.DELETE("/:id", authMiddleware.RequireAuth(), courtCtl.DeleteCourt) // Private: Delete court
+
+	// Venue-specific court routes
+	venues.POST("/:id/courts", authMiddleware.RequireAuth(), courtCtl.CreateCourt) // Private: Create court for venue
+	venues.GET("/:id/courts", courtCtl.GetCourtsByVenue)                           // Public: Get courts for venue
+
+	// Slot routes
+	slots := v1.Group("/slots")
+	slots.GET("/:id", slotCtl.GetSlotByID)                                 // Public: Get slot details
+	slots.PUT("/:id", authMiddleware.RequireAuth(), slotCtl.UpdateSlot)    // Private: Update slot
+	slots.DELETE("/:id", authMiddleware.RequireAuth(), slotCtl.DeleteSlot) // Private: Delete slot
+
+	// Court-specific slot routes
+	courts.POST("/:id/slots", authMiddleware.RequireAuth(), slotCtl.CreateSlot) // Private: Create slot for court
+	courts.GET("/:id/slots", slotCtl.GetSlotsByCourt)                           // Public: Get slots for court
 
 	// Legacy user routes (for backward compatibility)
 	legacyUsers := api.Group("/users")
