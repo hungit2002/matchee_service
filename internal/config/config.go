@@ -19,6 +19,9 @@ type Config struct {
 	JWTExpiry       time.Duration
 	RefreshExpiry   time.Duration
 	ShutdownTimeout time.Duration
+	PayPalClientID  string
+	PayPalSecret    string
+	PayPalBaseURL   string
 }
 
 func Load() (*Config, error) {
@@ -35,6 +38,9 @@ func Load() (*Config, error) {
 		JWTExpiry:       getEnvDuration("JWT_EXPIRY", 15*time.Minute),
 		RefreshExpiry:   getEnvDuration("REFRESH_EXPIRY", 7*24*time.Hour),
 		ShutdownTimeout: getEnvDuration("SHUTDOWN_TIMEOUT", 10*time.Second),
+		PayPalClientID:  getEnv("PAYPAL_CLIENT_ID", ""),
+		PayPalSecret:    getEnv("PAYPAL_SECRET", ""),
+		PayPalBaseURL:   getEnv("PAYPAL_BASE_URL", "https://api.sandbox.paypal.com"),
 	}
 	return c, nil
 }
