@@ -37,6 +37,13 @@ func BuildHTTPRouter(cfg *config.Config, logger interface{ Infof(string, ...any)
 	courtRepo := repository.NewCourtRepository(db)
 	slotRepo := repository.NewSlotRepository(db)
 	matchPostRepo := repository.NewMatchPostRepository(db)
+	matchGroupRepo := repository.NewMatchGroupRepository(db)
+	matchGroupMemberRepo := repository.NewMatchGroupMemberRepository(db)
+	bookingRepo := repository.NewBookingRepository(db)
+	paymentRepo := repository.NewPaymentRepository(db)
+	notificationRepo := repository.NewNotificationRepository(db)
+	feedbackRepo := repository.NewFeedbackRepository(db)
+	adminRepo := repository.NewAdminRepository(db)
 
 	// Wire services
 	jwtService := service.NewJWTService(cfg.JWTSecret, cfg.JWTExpiry, cfg.RefreshExpiry, authRepo)
@@ -49,6 +56,13 @@ func BuildHTTPRouter(cfg *config.Config, logger interface{ Infof(string, ...any)
 	courtUC := usecase.NewCourtUsecase(courtRepo, venueRepo)
 	slotUC := usecase.NewSlotUsecase(slotRepo, courtRepo)
 	matchPostUC := usecase.NewMatchPostUsecase(matchPostRepo, userRepo, venueRepo)
+	matchGroupUC := usecase.NewMatchGroupUsecase(matchGroupRepo, matchGroupMemberRepo, userRepo)
+	bookingUC := usecase.NewBookingUsecase(bookingRepo, matchGroupRepo)
+	paymentUC := usecase.NewPaymentUsecase(paymentRepo, bookingRepo, userRepo, cfg.PayPalClientID, cfg.PayPalSecret, cfg.PayPalBaseURL)
+	notifPublisher := service.NewNotificationPublisher(rdb, amqpCh)
+	notificationUC := usecase.NewNotificationUsecase(notificationRepo, notifPublisher)
+	feedbackUC := usecase.NewFeedbackUsecase(feedbackRepo, bookingRepo, userRepo)
+	adminUC := usecase.NewAdminUsecase(adminRepo, userRepo, venueRepo, feedbackRepo)
 
 	// Wire controllers
 	userCtl := controller.NewUserController(userUC)
@@ -58,9 +72,16 @@ func BuildHTTPRouter(cfg *config.Config, logger interface{ Infof(string, ...any)
 	courtCtl := controller.NewCourtController(courtUC)
 	slotCtl := controller.NewSlotController(slotUC)
 	matchPostCtl := controller.NewMatchPostController(matchPostUC)
+	matchGroupCtl := controller.NewMatchGroupController(matchGroupUC)
+	bookingCtl := controller.NewBookingController(bookingUC)
+	paymentCtl := controller.NewPaymentController(paymentUC)
+	notificationCtl := controller.NewNotificationController(notificationUC)
+	feedbackCtl := controller.NewFeedbackController(feedbackUC)
+	adminCtl := controller.NewAdminController(adminUC)
 
 	// Wire middleware
 	authMiddleware := middleware.NewAuthMiddleware(jwtService)
+	adminMiddleware := middleware.NewAdminMiddleware(jwtService)
 
 	// API routes
 	api := r.Group("/api")
@@ -90,41 +111,85 @@ func BuildHTTPRouter(cfg *config.Config, logger interface{ Infof(string, ...any)
 
 	// Venue routes
 	venues := v1.Group("/venues")
-	venues.GET("", venueCtl.GetVenues)                                        // Public: Get venues with filters
-	venues.GET("/:id", venueCtl.GetVenueByID)                                 // Public: Get venue details
-	venues.GET("/my", authMiddleware.RequireAuth(), venueCtl.GetMyVenues)     // Private: Get my venues
-	venues.POST("", authMiddleware.RequireAuth(), venueCtl.CreateVenue)       // Private: Create venue
-	venues.PUT("/:id", authMiddleware.RequireAuth(), venueCtl.UpdateVenue)    // Private: Update venue
-	venues.DELETE("/:id", authMiddleware.RequireAuth(), venueCtl.DeleteVenue) // Private: Delete venue
+	venues.GET("", venueCtl.GetVenues)
+	venues.GET("/:id", venueCtl.GetVenueByID)
+	venues.GET("/my", authMiddleware.RequireAuth(), venueCtl.GetMyVenues)
+	venues.POST("", authMiddleware.RequireAuth(), venueCtl.CreateVenue)
+	venues.PUT("/:id", authMiddleware.RequireAuth(), venueCtl.UpdateVenue)
+	venues.DELETE("/:id", authMiddleware.RequireAuth(), venueCtl.DeleteVenue)
 
 	// Court routes
 	courts := v1.Group("/courts")
-	courts.GET("/:id", courtCtl.GetCourtByID)                                 // Public: Get court details
-	courts.PUT("/:id", authMiddleware.RequireAuth(), courtCtl.UpdateCourt)    // Private: Update court
-	courts.DELETE("/:id", authMiddleware.RequireAuth(), courtCtl.DeleteCourt) // Private: Delete court
+	courts.GET("/:id", courtCtl.GetCourtByID)
+	courts.PUT("/:id", authMiddleware.RequireAuth(), courtCtl.UpdateCourt)
+	courts.DELETE("/:id", authMiddleware.RequireAuth(), courtCtl.DeleteCourt)
 
 	// Venue-specific court routes
-	venues.POST("/:id/courts", authMiddleware.RequireAuth(), courtCtl.CreateCourt) // Private: Create court for venue
-	venues.GET("/:id/courts", courtCtl.GetCourtsByVenue)                           // Public: Get courts for venue
+	venues.POST("/:id/courts", authMiddleware.RequireAuth(), courtCtl.CreateCourt)
+	venues.GET("/:id/courts", courtCtl.GetCourtsByVenue)
 
 	// Slot routes
 	slots := v1.Group("/slots")
-	slots.GET("/:id", slotCtl.GetSlotByID)                                 // Public: Get slot details
-	slots.PUT("/:id", authMiddleware.RequireAuth(), slotCtl.UpdateSlot)    // Private: Update slot
-	slots.DELETE("/:id", authMiddleware.RequireAuth(), slotCtl.DeleteSlot) // Private: Delete slot
+	slots.GET("/:id", slotCtl.GetSlotByID)
+	slots.PUT("/:id", authMiddleware.RequireAuth(), slotCtl.UpdateSlot)
+	slots.DELETE("/:id", authMiddleware.RequireAuth(), slotCtl.DeleteSlot)
 
 	// Court-specific slot routes
-	courts.POST("/:id/slots", authMiddleware.RequireAuth(), slotCtl.CreateSlot) // Private: Create slot for court
-	courts.GET("/:id/slots", slotCtl.GetSlotsByCourt)                           // Public: Get slots for court
+	courts.POST("/:id/slots", authMiddleware.RequireAuth(), slotCtl.CreateSlot)
+	courts.GET("/:id/slots", slotCtl.GetSlotsByCourt)
 
 	// Match Post routes
 	matchPosts := v1.Group("/match-posts")
-	matchPosts.POST("", authMiddleware.RequireAuth(), matchPostCtl.CreateMatchPost)       // Private: Create match post
-	matchPosts.GET("", matchPostCtl.GetMatchPosts)                                        // Public: Get match posts with filters
-	matchPosts.GET("/suggest", matchPostCtl.GetSuggestedMatchPosts)                       // Public: Get suggested match posts
-	matchPosts.GET("/:id", matchPostCtl.GetMatchPostByID)                                 // Public: Get match post details
-	matchPosts.PUT("/:id", authMiddleware.RequireAuth(), matchPostCtl.UpdateMatchPost)    // Private: Update match post
-	matchPosts.DELETE("/:id", authMiddleware.RequireAuth(), matchPostCtl.DeleteMatchPost) // Private: Delete match post
+	matchPosts.POST("", authMiddleware.RequireAuth(), matchPostCtl.CreateMatchPost)
+	matchPosts.GET("", matchPostCtl.GetMatchPosts)
+	matchPosts.GET("/suggest", matchPostCtl.GetSuggestedMatchPosts)
+	matchPosts.GET("/:id", matchPostCtl.GetMatchPostByID)
+	matchPosts.PUT("/:id", authMiddleware.RequireAuth(), matchPostCtl.UpdateMatchPost)
+	matchPosts.DELETE("/:id", authMiddleware.RequireAuth(), matchPostCtl.DeleteMatchPost)
+
+	// Match Group routes
+	matchGroups := v1.Group("/match-groups")
+	matchGroups.POST("", matchGroupCtl.CreateMatchGroup)
+	matchGroups.GET("", authMiddleware.RequireAuth(), matchGroupCtl.GetMyMatchGroups)
+	matchGroups.POST("/:id/members", authMiddleware.RequireAuth(), matchGroupCtl.AddMember)
+	matchGroups.DELETE("/:id/members/:user_id", authMiddleware.RequireAuth(), matchGroupCtl.RemoveMember)
+	matchGroups.PUT("/:id", authMiddleware.RequireAuth(), matchGroupCtl.UpdateMatchGroup)
+
+	// Booking routes
+	bookings := v1.Group("/bookings")
+	bookings.POST("", authMiddleware.RequireAuth(), bookingCtl.CreateBooking)
+	bookings.GET("", authMiddleware.RequireAuth(), bookingCtl.GetBookings)
+	bookings.GET("/:id", authMiddleware.RequireAuth(), bookingCtl.GetBookingByID)
+	bookings.PUT("/:id/status", authMiddleware.RequireAuth(), bookingCtl.UpdateBookingStatus)
+	bookings.DELETE("/:id", authMiddleware.RequireAuth(), bookingCtl.DeleteBooking)
+
+	// Payment routes
+	payments := v1.Group("/payments")
+	payments.POST("", authMiddleware.RequireAuth(), paymentCtl.CreatePayment)
+	payments.GET("", authMiddleware.RequireAuth(), paymentCtl.GetPayments)
+	payments.GET("/:id", authMiddleware.RequireAuth(), paymentCtl.GetPaymentByID)
+	payments.POST("/webhook", paymentCtl.HandlePayPalWebhook) // No auth required for webhook
+
+	// Notification routes
+	notif := v1.Group("/notifications")
+	notif.GET("", authMiddleware.RequireAuth(), notificationCtl.GetMyNotifications)
+	notif.PUT("/:id/read", authMiddleware.RequireAuth(), notificationCtl.MarkRead)
+	notif.POST("", authMiddleware.RequireAuth(), notificationCtl.Create)
+
+	// Feedback routes
+	feedbacks := v1.Group("/feedbacks")
+	feedbacks.POST("", authMiddleware.RequireAuth(), feedbackCtl.CreateFeedback)
+	feedbacks.GET("/user/:id", feedbackCtl.GetUserFeedbacks)
+	feedbacks.GET("/booking/:id", feedbackCtl.GetBookingFeedbacks)
+
+	// Admin routes
+	admin := v1.Group("/admin")
+	admin.Use(adminMiddleware.RequireAdmin())
+	admin.GET("/statistics/revenue", adminCtl.GetRevenueStatistics)
+	admin.GET("/users", adminCtl.GetUsers)
+	admin.PUT("/users/:id/lock", adminCtl.LockUser)
+	admin.PUT("/venues/:id/approve", adminCtl.ApproveVenue)
+	admin.GET("/feedbacks", adminCtl.GetFeedbacks)
 
 	// Legacy user routes (for backward compatibility)
 	legacyUsers := api.Group("/users")
